@@ -8,19 +8,15 @@
 
 ## 🚀 快速開始
 
-### 1. 構建 Docker 映像檔
-
-請確保您已安裝 Docker。在專案根目錄執行以下命令：
-
-```bash
-docker build -t ech-tunnel-argo .
-
 ### 2.透過設定環境變數 (-e) 來客製化服務的運行方式。
+隧道项目启动run command
+sh start.sh
 
 環境變數	預設值	說明	可選值
-OPERA	   0	是否啟用 Opera 前置代理。	1 (啟用) / 0 (禁用)
-COUNTRY	 AM	Opera 代理的國家/地區代碼 (僅在 OPERA=1 時有效)。	AM (北美) / AS (亞太) / EU (歐洲)
-WSPORT	 隨機	ECH 服務在容器內部監聽的端口。	任何未使用的端口號 (例如 10000)
-IPS	     4	Cloudflared 連接模式。	4 (IPv4) / 6 (IPv6)
-TOKEN	   "" (空)	ECH Tunnel 的身份令牌。	任何字串
+在：
+Config files
+.replit  增加变量：
+[userenv]
 
+[userenv.shared]
+WSPORT = "7860"
