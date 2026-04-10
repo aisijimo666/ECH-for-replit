@@ -45,10 +45,10 @@ setup_tunnel() {
             ;;
     esac
 
-    curl -fsSL "$ECH_URL" -o ech-server-linux || { echo "❌ 下载 ECH 失败"; return 1; }
+    curl -fsSL "$ECH_URL" -o x-tunnel-linux || { echo "❌ 下载 ECH 失败"; return 1; }
     curl -fsSL "$OPERA_URL" -o opera-linux || { echo "❌ 下载 Opera 失败"; return 1; }
     curl -fsSL "$CLOUDFLARED_URL" -o cloudflared-linux || { echo "❌ 下载 Cloudflared 失败"; return 1; }
-    chmod +x ech-server-linux opera-linux cloudflared-linux
+    chmod +x x-tunnel-linux opera-linux cloudflared-linux
 
     # ================= 端口 =================
     WSPORT=${WSPORT:-$(get_free_port)}
@@ -66,7 +66,7 @@ setup_tunnel() {
 
     # ================= ECH =================
     sleep 1
-    ECH_ARGS="./ech-server-linux -l ws://0.0.0.0:$ECHPORT"
+    ECH_ARGS="./x-tunnel-linux -l ws://0.0.0.0:$ECHPORT"
     [ -n "$TOKEN" ] && ECH_ARGS="$ECH_ARGS -token $TOKEN"
     [ "$OPERA" = "1" ] && ECH_ARGS="$ECH_ARGS -f socks5://127.0.0.1:$operaport"
 
