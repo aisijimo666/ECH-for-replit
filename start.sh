@@ -88,21 +88,35 @@ setup_tunnel() {
     # ================= Cloudflared =================
     echo "启动 Cloudflared..."
     CLOUDFLARED_LOG="/tmp/cloudflared.log"
-    ARGO_ARGS="--protocol http2"
 
     if [ -n "$ARGO_AUTH" ]; then
         ARGO_AUTH_FILE="/tmp/argo_auth.json"
         echo "$ARGO_AUTH" > "$ARGO_AUTH_FILE"
         chmod 600 "$ARGO_AUTH_FILE"
-        ARGO_ARGS="$ARGO_ARGS --credentials-file $ARGO_AUTH_FILE"
+
+        # 从凭证 JSON 中提取 TunnelID
+        TUNNEL_ID=$(echo "$ARGO_AUTH" | grep -o '"TunnelID":"[^"]*"' | cut -d'"' -f4)
+        echo "固定隧道 ID: $TUNNEL_ID"
+
+        # 生成 cloudflared 配置文件（Named Tunnel 模式）
+        cat > /tmp/cloudflared-config.yml <<CFEOF
+tunnel: $TUNNEL_ID
+credentials-file: $ARGO_AUTH_FILE
+protocol: http2
+metrics: 0.0.0.0:$ARGO_PORT
+ingress:
+  - service: http://127.0.0.1:$ECHPORT
+CFEOF
+
+        nohup ./cloudflared-linux tunnel --config /tmp/cloudflared-config.yml run \
+            >"$CLOUDFLARED_LOG" 2>&1 &
+    else
+        # 未提供凭证，使用临时快速隧道
+        nohup ./cloudflared-linux tunnel \
+            --url "http://127.0.0.1:$ECHPORT" \
+            --metrics "0.0.0.0:$ARGO_PORT" \
+            --protocol http2 >"$CLOUDFLARED_LOG" 2>&1 &
     fi
-
-    [ -n "$ARGO_DOMAIN" ] && ARGO_ARGS="$ARGO_ARGS --hostname $ARGO_DOMAIN"
-
-    nohup ./cloudflared-linux tunnel \
-        --url "127.0.0.1:$ECHPORT" \
-        --metrics "0.0.0.0:$ARGO_PORT" \
-        $ARGO_ARGS >"$CLOUDFLARED_LOG" 2>&1 &
 
     sleep 3
 
