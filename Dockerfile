@@ -12,8 +12,8 @@ RUN apk add --no-cache \
  && update-ca-certificates
 
 # 静态页与 Caddy 配置
-COPY index.html /srv/index.html
-COPY Caddyfile /etc/caddy/Caddyfile
+#COPY index.html /srv/index.html
+#COPY Caddyfile /etc/caddy/Caddyfile
 
 # 启动脚本
 COPY start.sh /app/start.sh
